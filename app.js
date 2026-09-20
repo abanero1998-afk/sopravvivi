@@ -2,25 +2,26 @@ const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const state = { tab: 'home', guide: null, pos: null, heading: null, hot: 'ua' };
 const HOTS = [
-  {id:'ua',x:58.5,y:32,r:'alto',title:'Ucraina',text:'Guerra regionale ad alta intensita. UXO, infrastrutture colpite, corridoi instabili.'},
-  {id:'ir',x:64.2,y:46,r:'alto',title:'Golfo / Iran',text:'Teatro 2026: Hormuz e fronti collegati. Traffico e carburante sotto stress.'},
-  {id:'il',x:59.8,y:44.5,r:'alto',title:'Levante',text:'Israele, Gaza, Libano, Siria. Area densa, aiuti irregolari.'},
-  {id:'ye',x:62.8,y:52.5,r:'alto',title:'Yemen / Mar Rosso',text:'Combattimenti interni e pressione sulle rotte.'},
-  {id:'sd',x:56.8,y:48.5,r:'alto',title:'Sudan',text:'Tra le guerre piu letali e meno coperte. Carestia e assedi.'},
-  {id:'sl',x:48.5,y:48,r:'medio',title:'Sahel',text:'Mali, Burkina, Niger. Strade insicure, Stato assente in molte zone.'},
-  {id:'cd',x:55.8,y:58,r:'alto',title:'Est RDC',text:'Kivu e milizie. Sfollati, accesso umanitario fragile.'},
-  {id:'mm',x:76,y:48,r:'alto',title:'Myanmar',text:'Guerra civile dal 2021. Confine instabile.'},
-  {id:'et',x:60.2,y:51,r:'medio',title:'Etiopia / Tigray',text:'Scontri ripresi dopo la tregua.'},
-  {id:'af',x:69.5,y:43,r:'medio',title:'Afghanistan-Pakistan',text:'Scontri di confine e insorgenza.'},
-  {id:'ht',x:26.2,y:48.8,r:'medio',title:'Haiti',text:'Violenza armata urbana. Porti soggetti a interruzione.'}
+  {id:'ua',x:51.8,y:28.5,r:'alto',title:'Ucraina',text:'Guerra regionale ad alta intensita. UXO, infrastrutture colpite, corridoi instabili.'},
+  {id:'il',x:54.2,y:34.2,r:'alto',title:'Levante',text:'Israele, Gaza, Libano, Siria. Area densa, aiuti irregolari.'},
+  {id:'ir',x:60.8,y:37.5,r:'alto',title:'Golfo / Iran',text:'Teatro 2026: Hormuz e fronti collegati. Traffico e carburante sotto stress.'},
+  {id:'ye',x:57.6,y:45.5,r:'alto',title:'Yemen / Mar Rosso',text:'Combattimenti interni e pressione sulle rotte.'},
+  {id:'sd',x:55.2,y:43.8,r:'alto',title:'Sudan',text:'Tra le guerre piu letali e meno coperte. Carestia e assedi.'},
+  {id:'sl',x:48.4,y:43.5,r:'medio',title:'Sahel',text:'Mali, Burkina, Niger. Strade insicure, Stato assente in molte zone.'},
+  {id:'cd',x:54.4,y:52.8,r:'alto',title:'Est RDC',text:'Kivu e milizie. Sfollati, accesso umanitario fragile.'},
+  {id:'za',x:54.0,y:68.2,r:'medio',title:'SADC / Sudafrica',text:'Attivita nel sud del continente. Snapshot, non allarme live.'},
+  {id:'mm',x:73.2,y:39.5,r:'alto',title:'Myanmar',text:'Guerra civile dal 2021. Confine instabile.'},
+  {id:'et',x:57.8,y:47.2,r:'medio',title:'Etiopia / Tigray',text:'Scontri ripresi dopo la tregua.'},
+  {id:'af',x:63.5,y:35.8,r:'medio',title:'Afghanistan-Pakistan',text:'Scontri di confine e insorgenza.'},
+  {id:'ht',x:26.8,y:41.0,r:'medio',title:'Haiti',text:'Violenza armata urbana. Porti soggetti a interruzione.'}
 ];
 function onlineChip(){const el=$('#net');if(!el)return;if(navigator.onLine){el.textContent='NET ON';el.className='chip ok';}else{el.textContent='NET OFF';el.className='chip off';}}
 function showTab(tab){state.tab=tab;state.guide=null;$$('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));render();}
 function openGuide(id){state.guide=GUIDES.find(g=>g.id===id)||null;render();}
 function badge(level,tag){const cls=level==='crit'?'crit':level==='warn'?'warn':'info';return '<span class="badge '+cls+'">'+tag+'</span>';}
 function mapSvg(){
-  const marks=HOTS.map((h,i)=>'<g class="hot" data-hot="'+h.id+'"><circle class="pulse '+(i%3===1?'d1':i%3===2?'d2':'')+'" cx="'+h.x+'%" cy="'+h.y+'%" r="11" fill="none" stroke="#ff453a" stroke-width="1.2"/><circle cx="'+h.x+'%" cy="'+h.y+'%" r="3.3" fill="#ff453a"/></g>').join('');
-  return '<svg class="world" viewBox="0 0 800 420" preserveAspectRatio="xMidYMid slice"><rect width="800" height="420" fill="#07090c"/><g stroke="rgba(196,165,116,.12)" stroke-width=".6">'+[70,140,210,280,350].map(y=>'<line x1="0" y1="'+y+'" x2="800" y2="'+y+'"/>').join('')+[80,160,240,320,400,480,560,640,720].map(x=>'<line x1="'+x+'" y1="0" x2="'+x+'" y2="420"/>').join('')+'</g><g fill="#1b2420" stroke="#3a4f44" stroke-width="1"><path d="M70 95l40-18 55 6 38 28-8 42-36 38-48 8-28-22-22-38z"/><path d="M155 128l28-8 18 14 8 36-22 58-18 8-16-30-8-40z"/><path d="M230 86l70-10 48 16 22 28-14 18-62 8-48-8-22-22z"/><path d="M250 150l22-6 18 22 8 70-10 40-22 8-16-36 4-58z"/><path d="M288 228l14 8 8 36-6 28-18 6-12-22z"/><path d="M430 78l90-16 70 10 40 22-10 18-86 14-72 4-28-14z"/><path d="M500 130l95 8 70 28 20 36-30 18-80-8-70-10-22-24z"/><path d="M470 210l40-6 28 18 8 50-18 40-32 14-22-10-10-48z"/><path d="M620 250l55-8 40 16 10 28-48 18-42-6z"/><path d="M680 290l50 6 28 22-8 18-46 6-30-12z"/></g><text x="16" y="24" fill="#c4a574" font-size="10" font-family="ui-monospace,monospace">SITREP GLOBALE \u00b7 SNAPSHOT OFFLINE</text>'+marks+'</svg>';
+  const marks=HOTS.map((h,i)=>'<g class="hot" data-hot="'+h.id+'"><circle class="pulse '+(i%3===1?'d1':i%3===2?'d2':'')+'" cx="'+h.x+'%" cy="'+h.y+'%" r="14" fill="none" stroke="#ff453a" stroke-width="1.4"/><circle cx="'+h.x+'%" cy="'+h.y+'%" r="3.6" fill="#ff453a"/></g>').join('');
+  return '<div class="globe"><div class="globe-bg" role="img" aria-label="Mappa mondo"></div><svg class="world-overlay" viewBox="0 0 100 45" preserveAspectRatio="none">'+marks+'</svg></div>';
 }
 function renderHome(){
   const hot=HOTS.find(h=>h.id===state.hot)||HOTS[0];
