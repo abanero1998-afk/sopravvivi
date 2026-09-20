@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#0c1410" />
+  <meta name="theme-color" content="#000000" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="SOPRAVVIVI" />
-  <title>SOPRAVVIVI — sopravvivenza offline</title>
+  <title>SOPRAVVIVI</title>
   <link rel="manifest" href="./manifest.json" />
   <link rel="icon" href="./icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="./icon.svg" />
@@ -14,18 +15,41 @@
 </head>
 <body>
   <header class="topbar">
-    <div class="brand">SOPRAVVIVI</div>
+    <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+      <rect x="1" y="1" width="30" height="30" rx="7" fill="none" stroke="#c4a574" stroke-width="1.4"/>
+      <circle cx="16" cy="16" r="5" fill="none" stroke="#c4a574" stroke-width="1.4"/>
+      <circle cx="16" cy="16" r="1.6" fill="#ff453a"/>
+    </svg>
+    <div>
+      <div class="brand">SOPRAVVIVI</div>
+      <div class="subbrand">Field manual</div>
+    </div>
     <div class="grow"></div>
-    <span id="net" class="chip">rete</span>
+    <span id="net" class="chip">NET</span>
     <button class="sos-btn" id="sosTop" type="button">SOS</button>
   </header>
   <main class="wrap" id="app"></main>
   <nav class="nav">
-    <button data-tab="home" class="on" type="button">Home<br>⌂</button>
-    <button data-tab="guide" type="button">Guide<br>☰</button>
-    <button data-tab="tools" type="button">Strumenti<br>◎</button>
-    <button data-tab="kit" type="button">Kit<br>+</button>
-    <button data-tab="me" type="button">Io<br>●</button>
+    <button data-tab="home" class="on" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1v-9.5Z"/></svg>
+      Home
+    </button>
+    <button data-tab="guide" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 4h9a3 3 0 0 1 3 3v13H8a2 2 0 0 0-2 2V4Z"/><path d="M6 19a2 2 0 0 1 2-2h12"/></svg>
+      Manuale
+    </button>
+    <button data-tab="tools" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8"/><path d="M12 4v3M12 17v3M4 12h3M17 12h3"/><circle cx="12" cy="12" r="2"/></svg>
+      Fix
+    </button>
+    <button data-tab="kit" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 8h16l-1 12H5L4 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+      Kit
+    </button>
+    <button data-tab="me" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 19.5c1.2-3.2 3.5-5 6.5-5s5.3 1.8 6.5 5"/></svg>
+      Io
+    </button>
   </nav>
   <script src="./content.js"></script>
   <script src="./app.js"></script>

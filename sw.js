@@ -1,13 +1,5 @@
-const CACHE = "sopravvivi-v2";
-const ASSETS = [
-  "./",
-  "./index.html",
-  "./app.css",
-  "./content.js",
-  "./app.js",
-  "./manifest.json",
-  "./icon.svg"
-];
+const CACHE = "sopravvivi-v3";
+const ASSETS = ["./", "./index.html", "./app.css", "./content.js", "./app.js", "./manifest.json", "./icon.svg"];
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)).then(() => self.skipWaiting()));
 });
