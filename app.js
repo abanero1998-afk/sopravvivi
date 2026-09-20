@@ -19,7 +19,11 @@ const HOTS = [
 ];
 
 function escAttr(s) {
-  return String(s || "").replace(/&/g, "&").replace(/"/g, """).replace(/</g, "<");
+  return String(s || "").replace(/[&<"]/g, function (c) {
+    if (c === "&") return "\u0026amp;";
+    if (c === "<") return "\u0026lt;";
+    return "\u0026quot;";
+  });
 }
 
 function onlineChip() {
