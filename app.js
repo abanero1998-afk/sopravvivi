@@ -1,261 +1,48 @@
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
-
-const state = {
-  tab: "home",
-  guide: null,
-  watchId: null,
-  pos: null,
-  heading: null
-};
-
-function onlineChip() {
-  const el = $("#net");
-  if (!el) return;
-  if (navigator.onLine) {
-    el.textContent = "rete ok";
-    el.className = "chip ok";
-  } else {
-    el.textContent = "offline";
-    el.className = "chip off";
-  }
+const state = { tab: 'home', guide: null, pos: null, heading: null, hot: 'ua' };
+const HOTS = [
+  {id:'ua',x:58.5,y:32,r:'alto',title:'Ucraina',text:'Guerra regionale ad alta intensita. UXO, infrastrutture colpite, corridoi instabili.'},
+  {id:'ir',x:64.2,y:46,r:'alto',title:'Golfo / Iran',text:'Teatro 2026: Hormuz e fronti collegati. Traffico e carburante sotto stress.'},
+  {id:'il',x:59.8,y:44.5,r:'alto',title:'Levante',text:'Israele, Gaza, Libano, Siria. Area densa, aiuti irregolari.'},
+  {id:'ye',x:62.8,y:52.5,r:'alto',title:'Yemen / Mar Rosso',text:'Combattimenti interni e pressione sulle rotte.'},
+  {id:'sd',x:56.8,y:48.5,r:'alto',title:'Sudan',text:'Tra le guerre piu letali e meno coperte. Carestia e assedi.'},
+  {id:'sl',x:48.5,y:48,r:'medio',title:'Sahel',text:'Mali, Burkina, Niger. Strade insicure, Stato assente in molte zone.'},
+  {id:'cd',x:55.8,y:58,r:'alto',title:'Est RDC',text:'Kivu e milizie. Sfollati, accesso umanitario fragile.'},
+  {id:'mm',x:76,y:48,r:'alto',title:'Myanmar',text:'Guerra civile dal 2021. Confine instabile.'},
+  {id:'et',x:60.2,y:51,r:'medio',title:'Etiopia / Tigray',text:'Scontri ripresi dopo la tregua.'},
+  {id:'af',x:69.5,y:43,r:'medio',title:'Afghanistan-Pakistan',text:'Scontri di confine e insorgenza.'},
+  {id:'ht',x:26.2,y:48.8,r:'medio',title:'Haiti',text:'Violenza armata urbana. Porti soggetti a interruzione.'}
+];
+function onlineChip(){const el=$('#net');if(!el)return;if(navigator.onLine){el.textContent='NET ON';el.className='chip ok';}else{el.textContent='NET OFF';el.className='chip off';}}
+function showTab(tab){state.tab=tab;state.guide=null;$$('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));render();}
+function openGuide(id){state.guide=GUIDES.find(g=>g.id===id)||null;render();}
+function badge(level,tag){const cls=level==='crit'?'crit':level==='warn'?'warn':'info';return '<span class="badge '+cls+'">'+tag+'</span>';}
+function mapSvg(){
+  const marks=HOTS.map((h,i)=>'<g class="hot" data-hot="'+h.id+'"><circle class="pulse '+(i%3===1?'d1':i%3===2?'d2':'')+'" cx="'+h.x+'%" cy="'+h.y+'%" r="11" fill="none" stroke="#ff453a" stroke-width="1.2"/><circle cx="'+h.x+'%" cy="'+h.y+'%" r="3.3" fill="#ff453a"/></g>').join('');
+  return '<svg class="world" viewBox="0 0 800 420" preserveAspectRatio="xMidYMid slice"><rect width="800" height="420" fill="#07090c"/><g stroke="rgba(196,165,116,.12)" stroke-width=".6">'+[70,140,210,280,350].map(y=>'<line x1="0" y1="'+y+'" x2="800" y2="'+y+'"/>').join('')+[80,160,240,320,400,480,560,640,720].map(x=>'<line x1="'+x+'" y1="0" x2="'+x+'" y2="420"/>').join('')+'</g><g fill="#1b2420" stroke="#3a4f44" stroke-width="1"><path d="M70 95l40-18 55 6 38 28-8 42-36 38-48 8-28-22-22-38z"/><path d="M155 128l28-8 18 14 8 36-22 58-18 8-16-30-8-40z"/><path d="M230 86l70-10 48 16 22 28-14 18-62 8-48-8-22-22z"/><path d="M250 150l22-6 18 22 8 70-10 40-22 8-16-36 4-58z"/><path d="M288 228l14 8 8 36-6 28-18 6-12-22z"/><path d="M430 78l90-16 70 10 40 22-10 18-86 14-72 4-28-14z"/><path d="M500 130l95 8 70 28 20 36-30 18-80-8-70-10-22-24z"/><path d="M470 210l40-6 28 18 8 50-18 40-32 14-22-10-10-48z"/><path d="M620 250l55-8 40 16 10 28-48 18-42-6z"/><path d="M680 290l50 6 28 22-8 18-46 6-30-12z"/></g><text x="16" y="24" fill="#c4a574" font-size="10" font-family="ui-monospace,monospace">SITREP GLOBALE \u00b7 SNAPSHOT OFFLINE</text>'+marks+'</svg>';
 }
-
-function showTab(tab) {
-  state.tab = tab;
-  state.guide = null;
-  $$(".nav button").forEach((b) => b.classList.toggle("on", b.dataset.tab === tab));
-  render();
+function renderHome(){
+  const hot=HOTS.find(h=>h.id===state.hot)||HOTS[0];
+  return '<section class="hero-ops"><div class="ops-head"><div><div class="kicker">Command home</div><h1>Situazione mondo</h1></div><div class="small">NON IN DIRETTA</div></div>'+mapSvg()+'<div class="legend"><span><i class="dot r"></i>alta intensita</span><span><i class="dot o"></i>conflitto attivo</span></div><div class="brief"><h3>'+hot.title+' \u00b7 '+hot.r.toUpperCase()+'</h3><p>'+hot.text+' Tocca un punto rosso. Se sei in zona: toglierti dal fuoco e farti trovare dai soccorsi civili.</p></div></section><div class="section-label">Priorita immediate</div><div class="grid">'+HOME_ACTIONS.map(a=>'<article class="card" data-open="'+a.id+'"><div class="lead">QRF</div><h3>'+a.title+'</h3><p>'+a.text+'</p></article>').join('')+'</div><div class="section-label">Manuale da campo</div><div class="grid">'+[['fuoco-zero','Fuoco senza kit','Arco, acciarino, lente'],['ripari-peggio','Ripari peggiori','Debris hut, trincea, hasty'],['sere','Protocollo campo','Vivo e trovabile'],['orientamento','Navigazione','Sole, stelle, GPS']].map(x=>'<article class="card" data-open="'+x[0]+'"><div class="lead">FM</div><h3>'+x[1]+'</h3><p>'+x[2]+'</p></article>').join('')+'</div><div class="section-label">Teatri civili</div><div class="list">'+GUIDES.filter(g=>g.cat==='scenario').map(row).join('')+'</div>';
 }
-
-function openGuide(id) {
-  state.guide = GUIDES.find((g) => g.id === id) || null;
-  render();
-}
-
-function badge(level, tag) {
-  const cls = level === "crit" ? "crit" : level === "warn" ? "warn" : "info";
-  return '<span class="badge ' + cls + '">' + tag + '</span>';
-}
-
-function renderGuide(g) {
-  return '<button class="back" id="back">\u2190 Tutte le guide</button>' +
-    '<h2>' + g.ico + ' ' + g.title + '</h2>' +
-    '<p>' + badge(g.level, g.tag) + ' ' + g.blurb + '</p>' +
-    g.body +
-    '<p class="small">Non sostituisce un corso di primo soccorso, il 112 o GeoResQ. In dubbio, chiama i soccorsi.</p>';
-}
-
-function renderHome() {
-  return '<section class="hero"><h1>Tutto qui. Anche senza Internet.</h1>' +
-    '<p>Guide di sopravvivenza e primo soccorso salvate sul telefono. Installa l\'app una volta, poi funziona senza campo.</p>' +
-    '<div class="actions"><button class="btn pri" id="installHint">Come installarla</button>' +
-    '<button class="btn" data-open="112">Numeri di emergenza</button></div></section>' +
-    '<h2>In questo momento</h2><div class="grid" style="margin:.6rem 0 1rem">' +
-    HOME_ACTIONS.map((a) => '<article class="card" data-open="' + a.id + '"><span class="ico">' + a.ico +
-    '</span><h3>' + a.title + '</h3><p>' + a.text + '</p></article>').join('') +
-    '</div><h2>Scenari</h2><div class="list" style="margin-top:.55rem">' +
-    GUIDES.filter((g) => g.cat === 'scenario').map(row).join('') + '</div>';
-}
-
-function row(g) {
-  return '<article class="row" data-open="' + g.id + '"><div class="ico">' + g.ico +
-    '</div><div><h3>' + g.title + '</h3><p>' + badge(g.level, g.tag) + g.blurb + '</p></div></article>';
-}
-
-function renderGuideList(q) {
-  q = q || '';
-  const query = q.trim().toLowerCase();
-  const list = GUIDES.filter((g) => !query || (g.title + g.blurb + g.tag).toLowerCase().includes(query));
-  return '<input class="search" id="q" placeholder="Cerca: sangue, vipera, acqua, terremoto\u2026" value="' +
-    q.replace(/"/g, '"') + '"><div class="list">' +
-    (list.map(row).join('') || '<p>Nessun risultato.</p>') + '</div>';
-}
-
-function renderTools() {
-  const p = state.pos;
-  const acc = p ? Math.round(p.coords.accuracy) : '\u2014';
-  const lat = p ? p.coords.latitude.toFixed(6) : 'in attesa\u2026';
-  const lon = p ? p.coords.longitude.toFixed(6) : 'in attesa\u2026';
-  const alt = p && p.coords.altitude != null ? Math.round(p.coords.altitude) + ' m' : 'n/d';
-  const deg = state.heading != null ? Math.round(state.heading) : null;
-  return '<div class="tool-grid"><section class="panel"><h2>Posizione GPS</h2>' +
-    '<p class="small">Il GPS usa i satelliti, non la rete. All\'aperto arriva.</p>' +
-    '<div class="coords" id="latlon">' + lat + ', ' + lon + '</div>' +
-    '<p>Quota ' + alt + ' \u00b7 precisione \u00b1' + acc + ' m</p>' +
-    '<div class="actions"><button class="btn pri" id="geo">Aggiorna posizione</button>' +
-    '<button class="btn" id="copyPos">Copia coordinate</button>' +
-    '<button class="btn" id="smsPos">Prepara SMS</button></div></section>' +
-    '<section class="panel"><h2>Bussola</h2>' +
-    '<div class="compass"><div class="n-label">N</div><div class="needle" id="needle"></div></div>' +
-    '<p class="small" id="headTxt">' + (deg == null ? 'Tieni il telefono in piano. Su iPhone concedi i sensori.' : deg + '\u00b0 dal nord magnetico') + '</p>' +
-    '<div class="actions"><button class="btn" id="compassBtn">Attiva bussola</button></div></section>' +
-    '<section class="panel"><h2>Segnale SOS</h2>' +
-    '<p class="small">Usa lo schermo se la torcia non e\' disponibile dal browser.</p>' +
-    '<div class="actions"><button class="btn danger" id="sosFlash">Lampeggia schermo</button>' +
-    '<button class="btn" id="sosStop">Stop</button></div></section></div>';
-}
-
-function renderKits() {
-  const checks = (key, items) => items.map((it, i) => {
-    const id = 'kit-' + key + '-' + i;
-    const on = localStorage.getItem(id) === '1';
-    return '<label class="check"><input type="checkbox" data-check="' + id + '" ' + (on ? 'checked' : '') + '><span>' + it + '</span></label>';
-  }).join('');
-  return '<section class="panel" style="margin-bottom:.7rem"><h2>Kit tasca / EDC</h2>' +
-    '<p>Quello che deve stare nello zaino anche per una passeggiata di due ore.</p>' +
-    checks('tasca', KITS.tasca) + '</section>' +
-    '<section class="panel" style="margin-bottom:.7rem"><h2>Uscita di un giorno</h2>' +
-    checks('giorno', KITS.giorno) + '</section>' +
-    '<section class="panel"><h2>Casa / 72 ore</h2>' + checks('casa', KITS.casa) + '</section>';
-}
-
-function renderMe() {
-  const d = JSON.parse(localStorage.getItem('sv-me') || '{}');
-  const v = (k) => d[k] || '';
-  return '<section class="panel"><h2>Scheda medica sul telefono</h2>' +
-    '<p class="small">Salvata solo in questo dispositivo. Duplica i dati nella scheda emergenza di iOS/Android.</p>' +
-    '<label>Nome</label><input type="text" id="m-nome" value="' + v('nome') + '">' +
-    '<label>Allergie</label><input type="text" id="m-all" value="' + v('all') + '">' +
-    '<label>Farmaci e patologie</label><textarea id="m-farm" rows="3">' + v('farm') + '</textarea>' +
-    '<label>Gruppo sanguigno</label><input type="text" id="m-sang" value="' + v('sang') + '">' +
-    '<label>Contatto di fiducia</label><input type="text" id="m-tel" value="' + v('tel') + '" placeholder="Nome e numero">' +
-    '<label>Note</label><textarea id="m-note" rows="3">' + v('note') + '</textarea>' +
-    '<div class="actions"><button class="btn pri" id="saveMe">Salva sul telefono</button></div></section>' +
-    '<section class="panel" style="margin-top:.7rem"><h2>Batteria</h2>' +
-    '<p id="batt" class="small">Lettura batteria se il browser la consente.</p>' +
-    '<p class="small">Modalita aereo, luminosita bassa, GPS a scatti, power bank. Al freddo tieni il telefono al caldo.</p></section>';
-}
-
-function render() {
-  const root = $("#app");
-  if (state.guide) {
-    root.innerHTML = renderGuide(state.guide);
-    $("#back").onclick = () => { state.guide = null; render(); };
-    return;
-  }
-  if (state.tab === "home") root.innerHTML = renderHome();
-  if (state.tab === "guide") root.innerHTML = renderGuideList();
-  if (state.tab === "tools") root.innerHTML = renderTools();
-  if (state.tab === "kit") root.innerHTML = renderKits();
-  if (state.tab === "me") root.innerHTML = renderMe();
-  $$("[data-open]").forEach((el) => el.onclick = () => openGuide(el.dataset.open));
-  const q = $("#q");
-  if (q) q.oninput = () => { $("#app").innerHTML = renderGuideList(q.value); bindGuideSearch(); };
-  bindTools(); bindKits(); bindMe();
-}
-
-function bindGuideSearch() {
-  $$("[data-open]").forEach((el) => el.onclick = () => openGuide(el.dataset.open));
-  const q = $("#q");
-  if (q) {
-    q.focus();
-    q.setSelectionRange(q.value.length, q.value.length);
-    q.oninput = () => { $("#app").innerHTML = renderGuideList(q.value); bindGuideSearch(); };
-  }
-}
-
-function bindTools() {
-  const geo = $("#geo");
-  if (!geo) return;
-  geo.onclick = requestGeo;
-  $("#copyPos").onclick = () => {
-    if (!state.pos) return alert("Ancora nessuna posizione.");
-    const t = state.pos.coords.latitude.toFixed(6) + ", " + state.pos.coords.longitude.toFixed(6);
-    navigator.clipboard && navigator.clipboard.writeText(t).then(() => alert("Coordinate copiate.")).catch(() => prompt("Copia:", t));
-  };
-  $("#smsPos").onclick = () => {
-    const d = JSON.parse(localStorage.getItem("sv-me") || "{}");
-    const who = d.nome ? d.nome + " " : "";
-    const t = state.pos
-      ? "SOS " + who + "pos: " + state.pos.coords.latitude.toFixed(6) + ", " + state.pos.coords.longitude.toFixed(6)
-      : "SOS " + who + "posizione GPS non ancora fissa";
-    location.href = "sms:?body=" + encodeURIComponent(t);
-  };
-  $("#compassBtn").onclick = enableCompass;
-  if (state.heading != null) applyNeedle(state.heading);
-  $("#sosFlash").onclick = () => document.body.classList.add("flash-sos");
-  $("#sosStop").onclick = () => document.body.classList.remove("flash-sos");
-}
-
-function requestGeo() {
-  if (!navigator.geolocation) return alert("GPS non disponibile su questo browser.");
-  navigator.geolocation.getCurrentPosition(
-    (pos) => { state.pos = pos; if (state.tab === "tools" && !state.guide) render(); },
-    (err) => alert("GPS: " + err.message + ". Esci all'aperto e consenti la posizione."),
-    { enableHighAccuracy: true, timeout: 20000, maximumAge: 5000 }
-  );
-}
-
-function applyNeedle(deg) {
-  const n = $("#needle");
-  if (n) n.style.transform = "rotate(" + deg + "deg)";
-}
-
-async function enableCompass() {
-  try {
-    if (typeof DeviceOrientationEvent !== "undefined" && DeviceOrientationEvent.requestPermission) {
-      const res = await DeviceOrientationEvent.requestPermission();
-      if (res !== "granted") return alert("Permesso sensori negato.");
-    }
-  } catch (e) {}
-  window.addEventListener("deviceorientationabsolute", onOrient, true);
-  window.addEventListener("deviceorientation", onOrient, true);
-}
-
-function onOrient(e) {
-  let h = e.webkitCompassHeading;
-  if (h == null && e.alpha != null) h = 360 - e.alpha;
-  if (h == null) return;
-  state.heading = h;
-  applyNeedle(h);
-  const t = $("#headTxt");
-  if (t) t.textContent = Math.round(h) + "\u00b0 dal nord";
-}
-
-function bindKits() {
-  $$("[data-check]").forEach((box) => {
-    box.onchange = () => localStorage.setItem(box.dataset.check, box.checked ? "1" : "0");
-  });
-}
-
-function bindMe() {
-  const btn = $("#saveMe");
-  if (!btn) return;
-  btn.onclick = () => {
-    const d = {
-      nome: $("#m-nome").value,
-      all: $("#m-all").value,
-      farm: $("#m-farm").value,
-      sang: $("#m-sang").value,
-      tel: $("#m-tel").value,
-      note: $("#m-note").value
-    };
-    localStorage.setItem("sv-me", JSON.stringify(d));
-    btn.textContent = "Salvato";
-  };
-  if (navigator.getBattery) {
-    navigator.getBattery().then((b) => {
-      const el = $("#batt");
-      if (el) el.textContent = "Batteria " + Math.round(b.level * 100) + "%" + (b.charging ? " in carica" : "");
-    });
-  }
-}
-
-function bindInstall() {
-  document.addEventListener("click", (e) => {
-    if (e.target.id === "installHint") {
-      alert("Android/Chrome: menu Installa app. iPhone: Condividi, Aggiungi alla Home. Poi aprila SENZA rete.");
-    }
-  });
-}
-
-window.addEventListener("online", onlineChip);
-window.addEventListener("offline", onlineChip);
-$$(".nav button").forEach((b) => b.onclick = () => showTab(b.dataset.tab));
-$("#sosTop").onclick = () => openGuide("112");
-if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js").catch(() => {});
-onlineChip();
-bindInstall();
-render();
-requestGeo();
+function row(g){return '<article class="row" data-open="'+g.id+'"><div class="ico-wrap">'+g.ico+'</div><div><h3>'+g.title+'</h3><p>'+badge(g.level,g.tag)+g.blurb+'</p></div></article>';}
+function renderGuide(g){return '<button class="back" id="back">Indietro</button><h2>'+g.title+'</h2><p>'+badge(g.level,g.tag)+g.blurb+'</p>'+g.body+'<p class="small">Non sostituisce 112, GeoResQ o un corso BLSD.</p>';}
+function renderGuideList(q){q=q||'';const query=q.trim().toLowerCase();const list=GUIDES.filter(g=>!query||(g.title+g.blurb+g.tag).toLowerCase().includes(query));return '<input class="search" id="q" placeholder="Cerca nel manuale" value="'+q.replace(/"/g,'"')+'"><div class="list">'+(list.map(row).join('')||'<p>Nessun risultato.</p>')+'</div>';}
+function renderTools(){const p=state.pos;const acc=p?Math.round(p.coords.accuracy):'\u2014';const lat=p?p.coords.latitude.toFixed(6):'in acquisizione';const lon=p?p.coords.longitude.toFixed(6):'in acquisizione';const alt=p&&p.coords.altitude!=null?Math.round(p.coords.altitude)+' m':'n/d';const deg=state.heading!=null?Math.round(state.heading):null;return '<div class="panel"><div class="kicker">Fix satellitare</div><h2>Posizione</h2><p class="small">Il chip GPS non usa la rete.</p><div class="coords">'+lat+', '+lon+'</div><p>Quota '+alt+' \u00b7 \u00b1'+acc+' m</p><div class="actions"><button class="btn pri" id="geo">Aggiorna</button><button class="btn" id="copyPos">Copia</button><button class="btn" id="smsPos">SMS</button></div></div><div class="panel"><div class="kicker">Orientamento</div><h2>Bussola</h2><div class="compass"><div class="n-label">N</div><div class="needle" id="needle"></div></div><p class="small" id="headTxt">'+(deg==null?'Attiva i sensori.':deg+'\u00b0')+'</p><div class="actions"><button class="btn" id="compassBtn">Attiva</button></div></div><div class="panel"><div class="kicker">Segnale</div><h2>Balise schermo</h2><div class="actions"><button class="btn danger" id="sosFlash">Lampeggia</button><button class="btn" id="sosStop">Stop</button></div></div>';}
+function renderKits(){const checks=(key,items)=>items.map((it,i)=>{const id='kit-'+key+'-'+i;const on=localStorage.getItem(id)==='1';return '<label class="check"><input type="checkbox" data-check="'+id+'" '+(on?'checked':'')+'><span>'+it+'</span></label>';}).join('');return '<div class="panel"><h2>Kit tasca</h2>'+checks('tasca',KITS.tasca)+'</div><div class="panel"><h2>Uscita giorno</h2>'+checks('giorno',KITS.giorno)+'</div><div class="panel"><h2>Casa 72 h</h2>'+checks('casa',KITS.casa)+'</div>';}
+function renderMe(){const d=JSON.parse(localStorage.getItem('sv-me')||'{}');const v=k=>d[k]||'';return '<div class="panel"><div class="kicker">Personale</div><h2>Scheda medica</h2><label>Nome</label><input type="text" id="m-nome" value="'+v('nome')+'"><label>Allergie</label><input type="text" id="m-all" value="'+v('all')+'"><label>Farmaci</label><textarea id="m-farm" rows="3">'+v('farm')+'</textarea><label>Gruppo</label><input type="text" id="m-sang" value="'+v('sang')+'"><label>Contatto</label><input type="text" id="m-tel" value="'+v('tel')+'"><label>Note</label><textarea id="m-note" rows="3">'+v('note')+'</textarea><div class="actions"><button class="btn pri" id="saveMe">Salva</button></div></div><div class="panel"><h2>Batteria</h2><p id="batt" class="small">Lettura se disponibile.</p></div>';}
+function render(){const root=$('#app');if(state.guide){root.innerHTML=renderGuide(state.guide);$('#back').onclick=()=>{state.guide=null;render();};return;}if(state.tab==='home')root.innerHTML=renderHome();if(state.tab==='guide')root.innerHTML=renderGuideList();if(state.tab==='tools')root.innerHTML=renderTools();if(state.tab==='kit')root.innerHTML=renderKits();if(state.tab==='me')root.innerHTML=renderMe();$$('[data-open]').forEach(el=>el.onclick=()=>openGuide(el.dataset.open));$$('[data-hot]').forEach(el=>el.onclick=()=>{state.hot=el.getAttribute('data-hot');render();});const q=$('#q');if(q)q.oninput=()=>{$('#app').innerHTML=renderGuideList(q.value);bindGuideSearch();};bindTools();bindKits();bindMe();}
+function bindGuideSearch(){$$('[data-open]').forEach(el=>el.onclick=()=>openGuide(el.dataset.open));const q=$('#q');if(q){q.focus();q.setSelectionRange(q.value.length,q.value.length);q.oninput=()=>{$('#app').innerHTML=renderGuideList(q.value);bindGuideSearch();};}}
+function bindTools(){const geo=$('#geo');if(!geo)return;geo.onclick=requestGeo;$('#copyPos').onclick=()=>{if(!state.pos)return alert('Nessun fix.');const t=state.pos.coords.latitude.toFixed(6)+', '+state.pos.coords.longitude.toFixed(6);navigator.clipboard&&navigator.clipboard.writeText(t).then(()=>alert('Copiato.')).catch(()=>prompt('Copia:',t));};$('#smsPos').onclick=()=>{const d=JSON.parse(localStorage.getItem('sv-me')||'{}');const who=d.nome?d.nome+' ':'';const t=state.pos?'SOS '+who+'pos: '+state.pos.coords.latitude.toFixed(6)+', '+state.pos.coords.longitude.toFixed(6):'SOS '+who+'no fix GPS';location.href='sms:?body='+encodeURIComponent(t);};$('#compassBtn').onclick=enableCompass;if(state.heading!=null)applyNeedle(state.heading);$('#sosFlash').onclick=()=>document.body.classList.add('flash-sos');$('#sosStop').onclick=()=>document.body.classList.remove('flash-sos');}
+function requestGeo(){if(!navigator.geolocation)return alert('GPS assente.');navigator.geolocation.getCurrentPosition(pos=>{state.pos=pos;if(state.tab==='tools'&&!state.guide)render();},err=>alert('GPS: '+err.message),{enableHighAccuracy:true,timeout:20000,maximumAge:5000});}
+function applyNeedle(deg){const n=$('#needle');if(n)n.style.transform='rotate('+deg+'deg)';}
+async function enableCompass(){try{if(typeof DeviceOrientationEvent!=='undefined'&&DeviceOrientationEvent.requestPermission){const res=await DeviceOrientationEvent.requestPermission();if(res!=='granted')return alert('Sensori negati.');}}catch(e){}window.addEventListener('deviceorientationabsolute',onOrient,true);window.addEventListener('deviceorientation',onOrient,true);}
+function onOrient(e){let h=e.webkitCompassHeading;if(h==null&&e.alpha!=null)h=360-e.alpha;if(h==null)return;state.heading=h;applyNeedle(h);const t=$('#headTxt');if(t)t.textContent=Math.round(h)+'\u00b0';}
+function bindKits(){$$('[data-check]').forEach(box=>{box.onchange=()=>localStorage.setItem(box.dataset.check,box.checked?'1':'0');});}
+function bindMe(){const btn=$('#saveMe');if(!btn)return;btn.onclick=()=>{localStorage.setItem('sv-me',JSON.stringify({nome:$('#m-nome').value,all:$('#m-all').value,farm:$('#m-farm').value,sang:$('#m-sang').value,tel:$('#m-tel').value,note:$('#m-note').value}));btn.textContent='Salvato';};if(navigator.getBattery)navigator.getBattery().then(b=>{const el=$('#batt');if(el)el.textContent='Batteria '+Math.round(b.level*100)+'%'+(b.charging?' in carica':'');});}
+window.addEventListener('online',onlineChip);window.addEventListener('offline',onlineChip);
+$$('.nav button').forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
+$('#sosTop').onclick=()=>openGuide('112');
+if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
+onlineChip();render();requestGeo();
