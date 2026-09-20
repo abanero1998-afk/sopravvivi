@@ -1,4 +1,4 @@
-const CACHE = "sopravvivi-v7";
+const CACHE = "sopravvivi-v8";
 const ASSETS = [
   "./",
   "./index.html",
