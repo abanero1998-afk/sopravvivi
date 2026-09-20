@@ -1,0 +1,15 @@
+{
+  "name": "SOPRAVVIVI — Guida offline",
+  "short_name": "SOPRAVVIVI",
+  "description": "Manuale di sopravvivenza e primo soccorso che funziona senza Internet.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0c1410",
+  "theme_color": "#0c1410",
+  "lang": "it",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
